@@ -16,8 +16,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var tableView: UITableView!
     
-    var cellLeftLabelContentsArray = [String()]
-    var cellRightLabelContentsArray = [String()]
+    var cellLeftLabelContentsArray = [String]()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,6 +30,9 @@ class ViewController: UIViewController {
         
         underSystemIndigoView.layer.cornerRadius = 120.0
         underSystemIndigoView.layer.maskedCorners = [.layerMaxXMinYCorner]
+        underSystemIndigoView.layer.shadowOffset = CGSize(width: 3, height: 3)
+        underSystemIndigoView.layer.shadowRadius = 10.0
+        underSystemIndigoView.layer.shadowOpacity = 0.8
         
         upperTextField.layer.borderColor = UIColor.systemIndigo.cgColor
         upperTextField.layer.borderWidth = 1.0
@@ -43,31 +46,34 @@ class ViewController: UIViewController {
         addButton.layer.shadowRadius = 10.0
         addButton.layer.shadowOpacity = 0.4
         
-        tableView.layer.shadowOffset = CGSize(width: 3, height: 3)
-        tableView.layer.shadowRadius = 10.0
-        tableView.layer.shadowOpacity = 0.8
-        tableView.layer.masksToBounds = false
+        tableView.layer.borderColor = UIColor.systemIndigo.cgColor
+        tableView.layer.borderWidth = 1.0
         
+        tableView.dataSource = self
         
     }
 
     
     @IBAction func add(_ sender: UIButton) {
         
-        
+        putInText(upperText: Int(upperTextField.text!), underText: Int(underTextField.text!))
         
         
     }
     
     
-    func putInText(upperText:String?,underText:String?){
+    func putInText(upperText:Int?,underText:Int?){
         
         guard let resultUpperText = upperText else { self.showAlert(); return }
         guard let resultUnderText = underText else { self.showAlert(); return }
         
-        cellLeftLabelContentsArray.append(resultUpperText)
-        cellRightLabelContentsArray.append(resultUnderText)
+        cellLeftLabelContentsArray.append(String(resultUpperText + resultUnderText))
         
+        
+        upperTextField.text = ""
+        underTextField.text = ""
+        
+        tableView.reloadData()
     }
 
     
@@ -92,6 +98,28 @@ class ViewController: UIViewController {
         
         self.present(usualAlert, animated: true, completion: nil)
     }
+    
+}
+
+
+extension ViewController:UITableViewDataSource{
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        return cellLeftLabelContentsArray.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        
+        let cellLeftLabel = cell.contentView.viewWithTag(1) as! UILabel
+        
+        cellLeftLabel.text = cellLeftLabelContentsArray[indexPath.row]
+        
+        return cell
+    }
+    
     
 }
 
